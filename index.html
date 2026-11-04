@@ -126,9 +126,12 @@ const plantes_reunion = [
 let tasks = JSON.parse(localStorage.getItem('jardin-tasks') || '[]');
 
 function getPhase() {
-  const d = new Date();
-  const age = (d - new Date(2026, 0, 1)) / 86400000 % 29.5;
-  return Math.floor(age / 7.375);
+  const now = new Date();
+  // Date de référence : 6 janvier 2000 (nouvelle lune connue)
+  const ref = new Date(2000, 0, 6);
+  const days = (now - ref) / 86400000;
+  const phase = (days % 29.530588) / 29.530588;
+  return Math.floor(phase * 4);
 }
 
 function drawUI() {
