@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#2d5a2d">
+<meta name="weather-api-key" content="TU_CLE_API_ICI">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-512.png">
-<title>Mon Jardin Tropical</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Mon Jardin Tropical</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { font: 16px sans-serif; background: #f0f8f0; color: #222; }
@@ -27,6 +27,11 @@ h2 { color: #2d5a2d; margin-bottom: 15px; }
 label { display: block; padding: 8px 0; }
 input[type=checkbox] { margin-right: 8px; }
 button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 8px; background: #2d5a2d; color: white; font-weight: bold; cursor: pointer; }
+#weather { text-align: center; }
+.weather-icon { font-size: 3rem; margin: 10px 0; }
+.weather-temp { font-size: 2rem; font-weight: bold; }
+.weather-desc { margin: 10px 0; }
+.weather-details { color: #666; font-size: 0.9rem; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -49,19 +54,20 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 </div>
 
 <div class="card">
-<h2>✅ Tâches du Jour</h2>
-<div class="card">
-  <h2>🌤️ Météo à Piton Sainte Rose</h2>
-  <div id="weather" style="text-align: center;">
-    <div class="weather-icon" id="weather-icon" style="font-size: 3rem; margin: 10px 0;">⏳</div>
-    <div class="weather-temp" id="weather-temp" style="font-size: 2rem; font-weight: bold;"></div>
-    <div class="weather-desc" id="weather-desc" style="margin: 10px 0;"></div>
-    <div class="weather-details">
-      <span id="weather-humidity"></span> |
-      <span id="weather-wind"></span>
-    </div>
+<h2>🌤️ Météo à Piton Sainte Rose</h2>
+<div id="weather">
+  <div class="weather-icon" id="weather-icon">⏳</div>
+  <div class="weather-temp" id="weather-temp"></div>
+  <div class="weather-desc" id="weather-desc"></div>
+  <div class="weather-details">
+    <span id="weather-humidity"></span> |
+    <span id="weather-wind"></span>
   </div>
 </div>
+</div>
+
+<div class="card">
+<h2>✅ Tâches du Jour</h2>
 <div class="tasks" id="tasks"></div>
 <button onclick="addTask()">+ Ajouter une tâche</button>
 <button onclick="clearTasks()" style="background: #666;">Effacer</button>
@@ -69,6 +75,7 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 </main>
 
 <script>
+// Données des phases lunaires
 const lunaires = [
   { nom: 'Nouvelle Lune', emoji: '🌑', conseil: 'Semis, plantations, nettoyage', plantes: ['Salade', 'Herbes aromatiques', 'Radis'] },
   { nom: 'Lune Croissante', emoji: '🌒', conseil: 'Récoltes, taille, multiplication', plantes: ['Vanille', 'Tomates', 'Piments'] },
@@ -76,6 +83,7 @@ const lunaires = [
   { nom: 'Lune Décroissante', emoji: '🌘', conseil: 'Désherbage, élagage, repos', plantes: ['Fruits', 'Bananes', 'Coco'] }
 ];
 
+// Liste complète des plantes réunionnaises
 const plantes_reunion = [
   // Fleurs
   { nom: 'Vanille', phase: 'Nouvelle Lune', desc: 'Orchidée grimpante - semis' },
@@ -142,16 +150,63 @@ const plantes_reunion = [
 ];
 
 let tasks = JSON.parse(localStorage.getItem('jardin-tasks') || '[]');
+let currentMoonPhase = -1;
 
+// Calcul de la phase lunaire (corrigé)
 function getPhase() {
   const now = new Date();
-  // Date de référence : 6 janvier 2000 (nouvelle lune connue)
-  const ref = new Date(2000, 0, 6);
+  const ref = new Date(2000, 0, 6); // 6 janvier 2000 (nouvelle lune)
   const days = (now - ref) / 86400000;
   const phase = (days % 29.530588) / 29.530588;
   return Math.floor(phase * 4);
 }
 
+// Fonction pour récupérer la météo
+async function fetchWeather() {
+  const apiKey = document.querySelector('meta[name="weather-api-key"]').content;
+  if (!apiKey || apiKey === '006e77a4bae1e387bb1c24beaec1a039') {
+    document.getElementById('weather').innerHTML = '<p>⚠️ Clé API manquante. <a href="https://openweathermap.org/" target="_blank" style="color:#2d5a2d;">Obtenir une clé gratuite</a></p>';
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/weather?q=Piton Sainte Rose,RE&appid=${apiKey}&units=metric&lang=fr`
+    );
+    const data = await response.json();
+
+    if (data.cod !== 200) {
+      document.getElementById('weather').innerHTML = '<p>⚠️ ' + (data.message || 'Ville non trouvée') + '</p>';
+      return;
+    }
+
+    document.getElementById('weather-icon').textContent = getWeatherIcon(data.weather[0].icon);
+    document.getElementById('weather-temp').textContent = Math.round(data.main.temp) + '°C';
+    document.getElementById('weather-desc').textContent = data.weather[0].description;
+    document.getElementById('weather-humidity').textContent = 'Humidité: ' + data.main.humidity + '%';
+    document.getElementById('weather-wind').textContent = 'Vent: ' + Math.round(data.wind.speed * 3.6) + ' km/h';
+  } catch (error) {
+    document.getElementById('weather').innerHTML = '<p>⚠️ Impossible de charger la météo (hors ligne ?)</p>';
+  }
+}
+
+// Convertit les codes OpenWeatherMap en emojis
+function getWeatherIcon(code) {
+  const icons = {
+    '01d': '☀️', '01n': '🌙',
+    '02d': '⛅', '02n': '🌤',
+    '03d': '☁️', '03n': '☁️',
+    '04d': '☁️', '04n': '☁️',
+    '09d': '🌦', '09n': '🌧',
+    '10d': '🌧', '10n': '🌧',
+    '11d': '⛈', '11n': '⛈',
+    '13d': '❄️', '13n': '❄️',
+    '50d': '🌫', '50n': '🌫'
+  };
+  return icons[code] || '🌦';
+}
+
+// Dessine l'interface
 function drawUI() {
   const phase = getPhase();
   const lune = lunaires[phase];
@@ -180,6 +235,7 @@ function drawUI() {
   document.getElementById('tasks').innerHTML = taskHtml || '<p>Aucune tâche</p>';
 }
 
+// Gestion des tâches
 function addTask() {
   const t = prompt('Nouvelle tâche :');
   if (t) {
@@ -201,8 +257,21 @@ function clearTasks() {
   drawUI();
 }
 
+// Initialisation
 drawUI();
+fetchWeather();
+setInterval(fetchWeather, 10 * 60 * 1000); // Rafraîchit la météo toutes les 10 min
 
+// Mise à jour automatique de la phase lunaire toutes les heures
+setInterval(() => {
+  const newPhase = getPhase();
+  if (newPhase !== currentMoonPhase) {
+    currentMoonPhase = newPhase;
+    drawUI();
+  }
+}, 60 * 60 * 1000);
+
+// Service Worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
