@@ -43,7 +43,7 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 </div>
 
 <div class="card">
-<h2>✓ Tâches du Jour</h2>
+<h2>✅ Tâches du Jour</h2>
 <div class="tasks" id="tasks"></div>
 <button onclick="addTask()">+ Ajouter une tâche</button>
 <button onclick="clearTasks()" style="background: #666;">Effacer</button>
@@ -59,14 +59,68 @@ const lunaires = [
 ];
 
 const plantes_reunion = [
-  { nom: 'Vanille', phase: 'Croissante', desc: 'Fleur précieuse' },
-  { nom: 'Fleur de Passage', phase: 'Pleine', desc: 'Très locale' },
-  { nom: 'Bougainvillée', phase: 'Pleine', desc: 'Colorée' },
-  { nom: 'Canna', phase: 'Croissante', desc: 'Tropicale' },
-  { nom: 'Tomate Cerise', phase: 'Croissante', desc: 'Productive' },
-  { nom: 'Piment', phase: 'Croissante', desc: 'Réunionnais' },
-  { nom: 'Bananier', phase: 'Décroissante', desc: 'Fruits' },
-  { nom: 'Goyavier', phase: 'Décroissante', desc: 'Fruits' }
+  // Fleurs
+  { nom: 'Vanille', phase: 'Nouvelle Lune', desc: 'Orchidée grimpante - semis' },
+  { nom: 'Fleur de Passage', phase: 'Nouvelle Lune', desc: 'Fleur emblématique - semis' },
+  { nom: 'Hibiscus', phase: 'Lune Croissante', desc: 'Fleur tropicale colorée' },
+  { nom: 'Frangipanier', phase: 'Lune Croissante', desc: 'Arbre à fleurs parfumées' },
+  { nom: 'Bougainvillée', phase: 'Pleine Lune', desc: 'Grimpante très colorée' },
+  { nom: 'Orchidée', phase: 'Pleine Lune', desc: 'Fleur élégante et délicate' },
+  { nom: 'Canna', phase: 'Lune Croissante', desc: 'Feuillage tropical et fleurs' },
+  { nom: 'Oiseau de paradis', phase: 'Lune Croissante', desc: 'Strelitzia - fleur exotique' },
+  { nom: 'Alstroemeria', phase: 'Lune Croissante', desc: 'Fleur résistante et colorée' },
+  { nom: 'Rose de porcelaine', phase: 'Pleine Lune', desc: 'Hibiscus rosa-sinensis' },
+  { nom: 'Ixora', phase: 'Pleine Lune', desc: 'Petites fleurs en boules' },
+  { nom: 'Allamanda', phase: 'Lune Croissante', desc: 'Fleur jaune en trompette' },
+  { nom: 'Lantana', phase: 'Lune Croissante', desc: 'Fleur multicolore résistante' },
+  { nom: 'Jasmin', phase: 'Lune Croissante', desc: 'Fleur parfumée grimpante' },
+  { nom: 'Gardenia', phase: 'Pleine Lune', desc: 'Fleur blanche très parfumée' },
+  { nom: 'Anthurium', phase: 'Pleine Lune', desc: 'Fleur rouge en forme de cœur' },
+  { nom: 'Géranium', phase: 'Lune Croissante', desc: 'Fleur colorée et parfumée' },
+  { nom: 'Quatre épices', phase: 'Lune Croissante', desc: 'Arbre aux épices locales' },
+
+  // Fruits
+  { nom: 'Letchis', phase: 'Nouvelle Lune', desc: 'Fruit star de La Réunion' },
+  { nom: 'Mangue', phase: 'Nouvelle Lune', desc: 'Arbre fruitier à semer' },
+  { nom: 'Ananas', phase: 'Lune Croissante', desc: 'Fruit sucré et juteux' },
+  { nom: 'Corossol', phase: 'Lune Croissante', desc: 'Fruit exotique crémeux' },
+  { nom: 'Papaye', phase: 'Lune Croissante', desc: 'Fruit riche en vitamines' },
+  { nom: 'Avocat', phase: 'Lune Croissante', desc: 'Fruit gras et nourrissant' },
+  { nom: 'Bananier', phase: 'Lune Décroissante', desc: 'Récolte et entretien' },
+  { nom: 'Goyavier', phase: 'Lune Décroissante', desc: 'Fruits parfumés' },
+  { nom: 'Tamarin', phase: 'Lune Décroissante', desc: 'Fruit acidulé' },
+  { nom: 'Framboesian', phase: 'Lune Décroissante', desc: 'Petits fruits noirs' },
+  { nom: 'Pomme cythère', phase: 'Lune Croissante', desc: 'Fruit tropical sucré' },
+  { nom: 'Citron', phase: 'Lune Croissante', desc: 'Agrume pour la cuisine' },
+  { nom: 'Orange', phase: 'Lune Croissante', desc: 'Agrume juteux' },
+  { nom: 'Pomme rose', phase: 'Lune Croissante', desc: 'Fruit local rafraîchissant' },
+  { nom: 'Coing du Japon', phase: 'Lune Croissante', desc: 'Fruit décoratif' },
+  { nom: 'Noix de coco', phase: 'Lune Décroissante', desc: 'Palmier et récolte' },
+  { nom: 'Mandarinier', phase: 'Lune Croissante', desc: 'Agrume local juteux' },
+
+  // Légumes
+  { nom: 'Tomate Cerise', phase: 'Nouvelle Lune', desc: 'Semis de tomates' },
+  { nom: 'Piment', phase: 'Nouvelle Lune', desc: 'Semis de piments réunionnais' },
+  { nom: 'Salade', phase: 'Nouvelle Lune', desc: 'Semis de laitues' },
+  { nom: 'Radis', phase: 'Nouvelle Lune', desc: 'Pousse rapidement' },
+  { nom: 'Herbes aromatiques', phase: 'Nouvelle Lune', desc: 'Basilic, persil, ciboulette' },
+  { nom: 'Carotte', phase: 'Lune Croissante', desc: 'Légume racine à récolter' },
+  { nom: 'Courgette', phase: 'Lune Croissante', desc: 'Légume productif' },
+  { nom: 'Aubergine', phase: 'Lune Croissante', desc: 'Légume tropical classique' },
+  { nom: 'Poivron', phase: 'Lune Croissante', desc: 'Légume coloré' },
+  { nom: 'Haricot vert', phase: 'Lune Croissante', desc: 'Légume grimpant' },
+  { nom: 'Patate douce', phase: 'Lune Décroissante', desc: 'Tubercules à récolter' },
+  { nom: 'Igname', phase: 'Lune Décroissante', desc: 'Tubercules traditionnels' },
+  { nom: 'Dasheen (Taro)', phase: 'Lune Décroissante', desc: 'Plante racine locale' },
+  { nom: 'Chou', phase: 'Lune Croissante', desc: 'Légume feuille' },
+  { nom: 'Épinard', phase: 'Lune Croissante', desc: 'Légume feuille vert' },
+  { nom: 'Concombre', phase: 'Lune Croissante', desc: 'Légume rafraîchissant' },
+  { nom: 'Pois carré', phase: 'Lune Croissante', desc: 'Légume local réunionnais' },
+  { nom: 'Chouchou', phase: 'Lune Croissante', desc: 'Chayotte - courge grimpante' },
+  { nom: 'Maïs', phase: 'Lune Croissante', desc: 'Céréale à cultiver' },
+  { nom: 'Pomme de terre', phase: 'Lune Décroissante', desc: 'Récolte des tubercules' },
+  { nom: 'Oignon', phase: 'Lune Décroissante', desc: 'Bulbes à récolter' },
+  { nom: 'Ail', phase: 'Lune Décroissante', desc: 'Bulbes parfumés' }
 ];
 
 let tasks = JSON.parse(localStorage.getItem('jardin-tasks') || '[]');
@@ -80,20 +134,24 @@ function getPhase() {
 function drawUI() {
   const phase = getPhase();
   const lune = lunaires[phase];
-  
+
   document.getElementById('moon').textContent = lune.emoji;
   document.getElementById('phase').textContent = lune.nom;
   document.getElementById('advice').innerHTML = '<b>À faire :</b> ' + lune.conseil;
-  
+
   let html = '';
   plantes_reunion.forEach(p => {
     if (p.phase === lune.nom) {
-      html += '<div class="plant"><div class="plant-name">' + p.nom + '</div><div class="plant-phase">' + p.desc + '</div></div>';
+      let emoji = '🌱';
+      if (p.nom === 'Vanille' || p.nom === 'Fleur de Passage' || p.nom === 'Hibiscus' || p.nom === 'Frangipanier' || p.nom === 'Bougainvillée' || p.nom === 'Orchidée' || p.nom === 'Canna' || p.nom === 'Oiseau de paradis' || p.nom === 'Alstroemeria' || p.nom === 'Rose de porcelaine' || p.nom === 'Ixora' || p.nom === 'Allamanda' || p.nom === 'Lantana' || p.nom === 'Jasmin' || p.nom === 'Gardenia' || p.nom === 'Anthurium' || p.nom === 'Géranium' || p.nom === 'Quatre épices') emoji = '🌸';
+      if (p.nom === 'Letchis' || p.nom === 'Mangue' || p.nom === 'Ananas' || p.nom === 'Corossol' || p.nom === 'Papaye' || p.nom === 'Avocat' || p.nom === 'Bananier' || p.nom === 'Goyavier' || p.nom === 'Tamarin' || p.nom === 'Framboesian' || p.nom === 'Pomme cythère' || p.nom === 'Citron' || p.nom === 'Orange' || p.nom === 'Pomme rose' || p.nom === 'Coing du Japon' || p.nom === 'Noix de coco' || p.nom === 'Mandarinier') emoji = '🍎';
+      if (p.nom === 'Tomate Cerise' || p.nom === 'Piment' || p.nom === 'Salade' || p.nom === 'Radis' || p.nom === 'Herbes aromatiques' || p.nom === 'Carotte' || p.nom === 'Courgette' || p.nom === 'Aubergine' || p.nom === 'Poivron' || p.nom === 'Haricot vert' || p.nom === 'Patate douce' || p.nom === 'Igname' || p.nom === 'Dasheen (Taro)' || p.nom === 'Chou' || p.nom === 'Épinard' || p.nom === 'Concombre' || p.nom === 'Pois carré' || p.nom === 'Chouchou' || p.nom === 'Maïs' || p.nom === 'Pomme de terre' || p.nom === 'Oignon' || p.nom === 'Ail') emoji = '🥕';
+      html += '<div class="plant"><div class="plant-name">' + emoji + ' ' + p.nom + '</div><div class="plant-phase">' + p.desc + '</div></div>';
     }
   });
   if (!html) html = '<p>Consultez les autres phases</p>';
   document.getElementById('plants').innerHTML = html;
-  
+
   let taskHtml = '';
   tasks.forEach((t, i) => {
     taskHtml += '<label><input type="checkbox" ' + (t.done ? 'checked' : '') + ' onchange="toggleTask(' + i + ')">' + t.text + '</label>';
