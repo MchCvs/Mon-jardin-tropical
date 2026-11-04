@@ -1,1 +1,34 @@
-{"name":"Mon Jardin Tropical","short_name":"Jardin","start_url":".","scope":".","display":"standalone","lang":"fr","background_color":"#f0f8f0","theme_color":"#2d5a2d","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png"}]}
+{
+  "name": "Mon Jardin Tropical",
+  "short_name": "Jardin",
+  "description": "Calendrier lunaire et conseils de jardinage tropical pour La Réunion",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone"],
+  "lang": "fr",
+  "background_color": "#f0f8f0",
+  "theme_color": "#2d5a2d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  }
+}
