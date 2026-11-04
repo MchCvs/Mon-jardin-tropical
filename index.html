@@ -50,6 +50,18 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 
 <div class="card">
 <h2>✅ Tâches du Jour</h2>
+<div class="card">
+  <h2>🌤️ Météo à Piton Sainte Rose</h2>
+  <div id="weather" style="text-align: center;">
+    <div class="weather-icon" id="weather-icon" style="font-size: 3rem; margin: 10px 0;">⏳</div>
+    <div class="weather-temp" id="weather-temp" style="font-size: 2rem; font-weight: bold;"></div>
+    <div class="weather-desc" id="weather-desc" style="margin: 10px 0;"></div>
+    <div class="weather-details">
+      <span id="weather-humidity"></span> |
+      <span id="weather-wind"></span>
+    </div>
+  </div>
+</div>
 <div class="tasks" id="tasks"></div>
 <button onclick="addTask()">+ Ajouter une tâche</button>
 <button onclick="clearTasks()" style="background: #666;">Effacer</button>
