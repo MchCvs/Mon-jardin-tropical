@@ -18,10 +18,17 @@ h2 { color: #2d5a2d; margin-bottom: 15px; }
 .moon { text-align: center; font-size: 3rem; margin: 20px 0; }
 .phase-name { text-align: center; font-size: 1.2rem; font-weight: bold; color: #2d5a2d; margin: 10px 0; }
 .advice { background: #f0f8f0; padding: 15px; border-left: 4px solid #2d5a2d; border-radius: 5px; margin: 10px 0; }
+.advice-why { font-style: italic; color: #555; margin-bottom: 10px; }
+.advice ul { margin: 8px 0 8px 20px; }
+.advice li { margin: 5px 0; }
+.advice-avoid { background: #fff3e0; padding: 10px; border-left: 4px solid #e65100; border-radius: 5px; margin-top: 10px; }
+.advice-avoid b { color: #e65100; }
 .plants { display: grid; gap: 10px; }
 .plant { padding: 10px; background: #e8f5e9; border-radius: 5px; border-left: 4px solid #4caf50; }
 .plant-name { font-weight: bold; color: #2d5a2d; }
 .plant-phase { font-size: 0.85rem; color: #666; }
+.plant-task { margin-top: 6px; padding: 8px; background: #fffde7; border-left: 3px solid #fbc02d; border-radius: 4px; font-size: 0.9rem; }
+.plant-task b { color: #2d5a2d; }
 .tasks { margin-top: 15px; }
 label { display: block; padding: 8px 0; }
 input[type=checkbox] { margin-right: 8px; }
@@ -76,78 +83,130 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 </main>
 
 <script>
-// Données des phases lunaires
+// Données des phases lunaires : explication détaillée de chaque phase
 const lunaires = [
-  { nom: 'Nouvelle Lune', emoji: '🌑', conseil: 'Semis, plantations, nettoyage', plantes: ['Salade', 'Herbes aromatiques', 'Radis'] },
-  { nom: 'Lune Croissante', emoji: '🌒', conseil: 'Récoltes, taille, multiplication', plantes: ['Vanille', 'Tomates', 'Piments'] },
-  { nom: 'Pleine Lune', emoji: '🌕', conseil: 'Observation, traitement naturel', plantes: ['Fleurs', 'Orchidées', 'Bougainvillées'] },
-  { nom: 'Lune Décroissante', emoji: '🌘', conseil: 'Désherbage, élagage, repos', plantes: ['Fruits', 'Bananes', 'Coco'] }
+  {
+    nom: 'Nouvelle Lune',
+    emoji: '🌑',
+    conseil: 'Semis, plantations, nettoyage',
+    explication: 'La lune est invisible : c\'est le début d\'un nouveau cycle. Traditionnellement, c\'est la meilleure période pour semer et planter, car la sève est au repos dans les parties aériennes et les graines profiteraient de l\'humidité du sol.',
+    actions: [
+      'Semer en pépinière ou en place (légumes, fleurs, arbres)',
+      'Repiquer les jeunes plants et planter les arbres fruitiers',
+      'Préparer le sol : bêcher, amender avec du compost',
+      'Pailler le pied des plantations pour garder l\'humidité',
+      'Nettoyer le jardin, retirer les déchets végétaux'
+    ],
+    eviter: 'Éviter de tailler ou d\'élaguer : les plaies cicatrisent moins bien.'
+  },
+  {
+    nom: 'Lune Croissante',
+    emoji: '🌒',
+    conseil: 'Récoltes, taille, multiplication',
+    explication: 'La lune grossit chaque soir : la sève monte dans les parties aériennes (feuilles, fruits, tiges). C\'est le moment de tout ce qui "pousse vers le haut" : récolter les fruits et feuilles, bouturer, greffer.',
+    actions: [
+      'Récolter les fruits et légumes (ils seraient plus juteux)',
+      'Tailler les haies et arbustes d\'ornement',
+      'Bouturer, greffer, marcotter pour multiplier les plantes',
+      'Récolter les plantes aromatiques et les faire sécher',
+      'Arroser et fertiliser (la plante absorbe mieux)'
+    ],
+    eviter: 'Éviter de désherber et d\'élaguer les grands arbres : la sève qui monte rend la repousse plus vigoureuse.'
+  },
+  {
+    nom: 'Pleine Lune',
+    emoji: '🌕',
+    conseil: 'Observation, traitement naturel',
+    explication: 'La lune est pleine et lumineuse : la sève est à son maximum dans les parties hautes. Les parasites sont aussi plus actifs. C\'est le bon moment pour observer, soigner et protéger le jardin, sans le "stresser".',
+    actions: [
+      'Inspecter les feuilles : chercher pucerons, cochenilles, chenilles',
+      'Traiter naturellement : savon noir, purin d\'ortie, neem',
+      'Arroser plus longuement (les plantes boivent davantage)',
+      'Observer la croissance et noter ce qui pousse bien',
+      'Cueillir les fleurs pour les bouquets'
+    ],
+    eviter: 'Éviter taille, élagage et plantation : la sève trop abondante "noie" les boutures et fatigue la plante.'
+  },
+  {
+    nom: 'Lune Décroissante',
+    emoji: '🌘',
+    conseil: 'Désherbage, élagage, repos',
+    explication: 'La lune diminue chaque soir : la sève redescend vers les racines. Tout ce qui vit sous terre en profite : c\'est LE moment des racines, tubercules et bulbes, et le meilleur moment pour couper sans affaiblir.',
+    actions: [
+      'Récolter les tubercules et bulbes : patate douce, igname, dasheen, pomme de terre, oignon, ail',
+      'Désherber : les mauvaises herbes repoussent moins vite',
+      'Élaguer les arbres et couper le bois (plaies qui cicatrisent bien)',
+      'Butter et biner autour des légumes-racines',
+      'Reposer le jardin : pas de semis ni de plantation'
+    ],
+    eviter: 'Éviter les semis et plantations : les graines lèvent mal et les plants s\'installent difficilement.'
+  }
 ];
 
-// Liste complète des plantes réunionnaises
+// Liste complète des plantes réunionnaises, avec une tâche précise par plante
 const plantes_reunion = [
   // Fleurs
-  { nom: 'Vanille', phase: 'Nouvelle Lune', desc: 'Orchidée grimpante - semis' },
-  { nom: 'Fleur de Passage', phase: 'Nouvelle Lune', desc: 'Fleur emblématique - semis' },
-  { nom: 'Hibiscus', phase: 'Lune Croissante', desc: 'Fleur tropicale colorée' },
-  { nom: 'Frangipanier', phase: 'Lune Croissante', desc: 'Arbre à fleurs parfumées' },
-  { nom: 'Bougainvillée', phase: 'Pleine Lune', desc: 'Grimpante très colorée' },
-  { nom: 'Orchidée', phase: 'Pleine Lune', desc: 'Fleur élégante et délicate' },
-  { nom: 'Canna', phase: 'Lune Croissante', desc: 'Feuillage tropical et fleurs' },
-  { nom: 'Oiseau de paradis', phase: 'Lune Croissante', desc: 'Strelitzia - fleur exotique' },
-  { nom: 'Alstroemeria', phase: 'Lune Croissante', desc: 'Fleur résistante et colorée' },
-  { nom: 'Rose de porcelaine', phase: 'Pleine Lune', desc: 'Hibiscus rosa-sinensis' },
-  { nom: 'Ixora', phase: 'Pleine Lune', desc: 'Petites fleurs en boules' },
-  { nom: 'Allamanda', phase: 'Lune Croissante', desc: 'Fleur jaune en trompette' },
-  { nom: 'Lantana', phase: 'Lune Croissante', desc: 'Fleur multicolore résistante' },
-  { nom: 'Jasmin', phase: 'Lune Croissante', desc: 'Fleur parfumée grimpante' },
-  { nom: 'Gardenia', phase: 'Pleine Lune', desc: 'Fleur blanche très parfumée' },
-  { nom: 'Anthurium', phase: 'Pleine Lune', desc: 'Fleur rouge en forme de cœur' },
-  { nom: 'Géranium', phase: 'Lune Croissante', desc: 'Fleur colorée et parfumée' },
-  { nom: 'Quatre épices', phase: 'Lune Croissante', desc: 'Arbre aux épices locales' },
+  { nom: 'Vanille', phase: 'Nouvelle Lune', desc: 'Orchidée grimpante - semis', tache: 'Planter une bouture sur son arbre tuteur (vanillon), à mi-ombre, et l\'attacher au tronc.' },
+  { nom: 'Fleur de Passage', phase: 'Nouvelle Lune', desc: 'Fleur emblématique - semis', tache: 'Tremper les graines 24h dans l\'eau tiède, puis semer en pépinière ombragée.' },
+  { nom: 'Hibiscus', phase: 'Lune Croissante', desc: 'Fleur tropicale colorée', tache: 'Bouturer une branche de 15 cm en terre humide, ou tailler légèrement pour provoquer de nouvelles fleurs.' },
+  { nom: 'Frangipanier', phase: 'Lune Croissante', desc: 'Arbre à fleurs parfumées', tache: 'Bouturer une branche : laisser sécher la plaie 3-4 jours à l\'ombre avant de planter.' },
+  { nom: 'Bougainvillée', phase: 'Pleine Lune', desc: 'Grimpante très colorée', tache: 'Chercher chenilles et pucerons sous les feuilles, traiter au savon noir, attacher les nouvelles pousses.' },
+  { nom: 'Orchidée', phase: 'Pleine Lune', desc: 'Fleur élégante et délicate', tache: 'Vérifier que les racines sont saines (ni trop sèches, ni molles et noires), chercher les cochenilles, nettoyer les feuilles avec un chiffon humide.' },
+  { nom: 'Canna', phase: 'Lune Croissante', desc: 'Feuillage tropical et fleurs', tache: 'Couper les hampes fleuries fanées, diviser les touffes de rhizomes si elles sont trop denses.' },
+  { nom: 'Oiseau de paradis', phase: 'Lune Croissante', desc: 'Strelitzia - fleur exotique', tache: 'Couper les fleurs fanées à la base, diviser les touffes pour les rajeunir.' },
+  { nom: 'Alstroemeria', phase: 'Lune Croissante', desc: 'Fleur résistante et colorée', tache: 'Couper les tiges fanées en les tirant de la base (pas au sécateur) pour relancer la floraison.' },
+  { nom: 'Rose de porcelaine', phase: 'Pleine Lune', desc: 'Hibiscus rosa-sinensis', tache: 'Nettoyer le pied, vérifier les feuilles jaunissantes et traiter au purin si besoin.' },
+  { nom: 'Ixora', phase: 'Pleine Lune', desc: 'Petites fleurs en boules', tache: 'Contrôler les pucerons sur les jeunes pousses, traiter au savon noir si nécessaire.' },
+  { nom: 'Allamanda', phase: 'Lune Croissante', desc: 'Fleur jaune en trompette', tache: 'Tailler la liane pour la ramifier et la bouturer en terre humide.' },
+  { nom: 'Lantana', phase: 'Lune Croissante', desc: 'Fleur multicolore résistante', tache: 'Tailler court pour densifier la touffe, bouturer les bout de branches en terre.' },
+  { nom: 'Jasmin', phase: 'Lune Croissante', desc: 'Fleur parfumée grimpante', tache: 'Tailler après la floraison et marcotter une tige flexible pour la multiplier.' },
+  { nom: 'Gardenia', phase: 'Pleine Lune', desc: 'Fleur blanche très parfumée', tache: 'Vérifier le jaunissement des feuilles (manque de fer), chercher les cochenilles sous les feuilles.' },
+  { nom: 'Anthurium', phase: 'Pleine Lune', desc: 'Fleur rouge en forme de cœur', tache: 'Nettoyer les feuilles avec un chiffon humide, vérifier que le pot draine bien (pas d\'eau stagnante).' },
+  { nom: 'Géranium', phase: 'Lune Croissante', desc: 'Fleur colorée et parfumée', tache: 'Bouturer dans un verre d\'eau ou en terre humide, couper les fleurs fanées.' },
+  { nom: 'Quatre épices', phase: 'Lune Croissante', desc: 'Arbre aux épices locales', tache: 'Récolter les baies selon la maturité voulue (vert, rouge, noir), bouturer une branche semi-aoûtée.' },
 
   // Fruits
-  { nom: 'Letchis', phase: 'Nouvelle Lune', desc: 'Fruit star de La Réunion' },
-  { nom: 'Mangue', phase: 'Nouvelle Lune', desc: 'Arbre fruitier à semer' },
-  { nom: 'Ananas', phase: 'Lune Croissante', desc: 'Fruit sucré et juteux' },
-  { nom: 'Corossol', phase: 'Lune Croissante', desc: 'Fruit exotique crémeux' },
-  { nom: 'Papaye', phase: 'Lune Croissante', desc: 'Fruit riche en vitamines' },
-  { nom: 'Avocat', phase: 'Lune Croissante', desc: 'Fruit gras et nourrissant' },
-  { nom: 'Bananier', phase: 'Lune Décroissante', desc: 'Récolte et entretien' },
-  { nom: 'Goyavier', phase: 'Lune Décroissante', desc: 'Fruits parfumés' },
-  { nom: 'Tamarin', phase: 'Lune Décroissante', desc: 'Fruit acidulé' },
-  { nom: 'Framboesian', phase: 'Lune Décroissante', desc: 'Petits fruits noirs' },
-  { nom: 'Pomme cythère', phase: 'Lune Croissante', desc: 'Fruit tropical sucré' },
-  { nom: 'Citron', phase: 'Lune Croissante', desc: 'Agrume pour la cuisine' },
-  { nom: 'Orange', phase: 'Lune Croissante', desc: 'Agrume juteux' },
-  { nom: 'Pomme rose', phase: 'Lune Croissante', desc: 'Fruit local rafraîchissant' },
-  { nom: 'Coing du Japon', phase: 'Lune Croissante', desc: 'Fruit décoratif' },
-  { nom: 'Noix de coco', phase: 'Lune Décroissante', desc: 'Palmier et récolte' },
-  { nom: 'Mandarinier', phase: 'Lune Croissante', desc: 'Agrume local juteux' },
+  { nom: 'Letchis', phase: 'Nouvelle Lune', desc: 'Fruit star de La Réunion', tache: 'Planter un jeune arbre greffé (les semis donnent des fruits de qualité variable), pailler généreusement le pied.' },
+  { nom: 'Mangue', phase: 'Nouvelle Lune', desc: 'Arbre fruitier à semer', tache: 'Semer un noyau ou mieux, planter un greffé pour obtenir les mêmes fruits que le parent.' },
+  { nom: 'Ananas', phase: 'Lune Croissante', desc: 'Fruit sucré et juteux', tache: 'Récolter les fruits mûrs (parfum prononcé) et replanter la couronne du fruit en terre légère.' },
+  { nom: 'Corossol', phase: 'Lune Croissante', desc: 'Fruit exotique crémeux', tache: 'Récolter les fruits encore durs (ils mûrissent après cueillette), greffer pour garder la qualité du fruit.' },
+  { nom: 'Papaye', phase: 'Lune Croissante', desc: 'Fruit riche en vitamines', tache: 'Récolter les fruits au tiers jaunes, semer quelques graines pour replanter.' },
+  { nom: 'Avocat', phase: 'Lune Croissante', desc: 'Fruit gras et nourrissant', tache: 'Récolter les fruits mûrs tombés au sol, greffer les jeunes plants (les semis donnent des fruits aléatoires).' },
+  { nom: 'Bananier', phase: 'Lune Décroissante', desc: 'Récolte et entretien', tache: 'Couper les feuilles sèches, retirer les rejets en surnombre (garder 3-5 pieds par touffe), couper le pseudo-tronc qui a déjà donné, récolter les régimes.' },
+  { nom: 'Goyavier', phase: 'Lune Décroissante', desc: 'Fruits parfumés', tache: 'Élaguer les branches mortes ou qui touchent le sol, désherber le pied, récolter les fruits avant les mouches des fruits.' },
+  { nom: 'Tamarin', phase: 'Lune Décroissante', desc: 'Fruit acidulé', tache: 'Léger élagage du bois mort, désherber au pied, récolter les gousses mûres (fruits bruns et cassants).' },
+  { nom: 'Framboisian', phase: 'Lune Décroissante', desc: 'Petits fruits noirs', tache: 'Couper les cannes/tiges qui ont déjà fructifié, attacher les nouvelles pousses sur leur support, récolter les fruits noirs.' },
+  { nom: 'Pomme cythère', phase: 'Lune Croissante', desc: 'Fruit tropical sucré', tache: 'Récolter les fruits, marcotter une branche pour multiplier l\'arbre fidèlement.' },
+  { nom: 'Citron', phase: 'Lune Croissante', desc: 'Agrume pour la cuisine', tache: 'Récolter les fruits selon besoin, greffer en bourgeonnement sur un porte-greffe robuste (bigaradier).' },
+  { nom: 'Orange', phase: 'Lune Croissante', desc: 'Agrume juteux', tache: 'Récolter les fruits bien colorés, greffer les jeunes plants pour garder la variété.' },
+  { nom: 'Pomme rose', phase: 'Lune Croissante', desc: 'Fruit local rafraîchissant', tache: 'Récolter les fruits au parfum sucré, bouturer à l\'étouffée sous un bocal en plastique.' },
+  { nom: 'Coing du Japon', phase: 'Lune Croissante', desc: 'Fruit décoratif', tache: 'Récolter les coings jaunes et parfumés, bouturer ou marcotter pour multiplier.' },
+  { nom: 'Noix de coco', phase: 'Lune Décroissante', desc: 'Palmier et récolte', tache: 'Retirer les palmes mortes et les noix mûres au sol, désherber le pied. Attention : ne jamais monter au cocotier sans matériel.' },
+  { nom: 'Mandarinier', phase: 'Lune Croissante', desc: 'Agrume local juteux', tache: 'Récolter les mandarines qui se détachent facilement à la main, greffer en bourgeonnement.' },
 
   // Légumes
-  { nom: 'Tomate Cerise', phase: 'Nouvelle Lune', desc: 'Semis de tomates' },
-  { nom: 'Piment', phase: 'Nouvelle Lune', desc: 'Semis de piments réunionnais' },
-  { nom: 'Salade', phase: 'Nouvelle Lune', desc: 'Semis de laitues' },
-  { nom: 'Radis', phase: 'Nouvelle Lune', desc: 'Pousse rapidement' },
-  { nom: 'Herbes aromatiques', phase: 'Nouvelle Lune', desc: 'Basilic, persil, ciboulette' },
-  { nom: 'Carotte', phase: 'Lune Croissante', desc: 'Légume racine à récolter' },
-  { nom: 'Courgette', phase: 'Lune Croissante', desc: 'Légume productif' },
-  { nom: 'Aubergine', phase: 'Lune Croissante', desc: 'Légume tropical classique' },
-  { nom: 'Poivron', phase: 'Lune Croissante', desc: 'Légume coloré' },
-  { nom: 'Haricot vert', phase: 'Lune Croissante', desc: 'Légume grimpant' },
-  { nom: 'Patate douce', phase: 'Lune Décroissante', desc: 'Tubercules à récolter' },
-  { nom: 'Igname', phase: 'Lune Décroissante', desc: 'Tubercules traditionnels' },
-  { nom: 'Dasheen (Taro)', phase: 'Lune Décroissante', desc: 'Plante racine locale' },
-  { nom: 'Chou', phase: 'Lune Croissante', desc: 'Légume feuille' },
-  { nom: 'Épinard', phase: 'Lune Croissante', desc: 'Légume feuille vert' },
-  { nom: 'Concombre', phase: 'Lune Croissante', desc: 'Légume rafraîchissant' },
-  { nom: 'Pois carré', phase: 'Lune Croissante', desc: 'Légume local réunionnais' },
-  { nom: 'Chouchou', phase: 'Lune Croissante', desc: 'Chayotte - courge grimpante' },
-  { nom: 'Maïs', phase: 'Lune Croissante', desc: 'Céréale à cultiver' },
-  { nom: 'Pomme de terre', phase: 'Lune Décroissante', desc: 'Récolte des tubercules' },
-  { nom: 'Oignon', phase: 'Lune Décroissante', desc: 'Bulbes à récolter' },
-  { nom: 'Ail', phase: 'Lune Décroissante', desc: 'Bulbes parfumés' }
+  { nom: 'Tomate Cerise', phase: 'Nouvelle Lune', desc: 'Semis de tomates', tache: 'Semer en pépinière protégée de la pluie, repiquer quand les plants ont 4-5 feuilles.' },
+  { nom: 'Piment', phase: 'Nouvelle Lune', desc: 'Semis de piments réunionnais', tache: 'Semer au chaud les graines (piment vert, piment rouge), arroser légèrement sans noyer.' },
+  { nom: 'Salade', phase: 'Nouvelle Lune', desc: 'Semis de laitues', tache: 'Semer à mi-ombre (la chaleur fait monter à graines), éclaircir dès la levée.' },
+  { nom: 'Radis', phase: 'Nouvelle Lune', desc: 'Pousse rapidement', tache: 'Semer en ligne tous les 2-3 cm, garder le sol frais : récolte en 3-4 semaines.' },
+  { nom: 'Herbes aromatiques', phase: 'Nouvelle Lune', desc: 'Basilic, persil, ciboulette', tache: 'Semer basilic et persil à mi-ombre, diviser les touffes de ciboulette, arroser sans mouiller le feuillage.' },
+  { nom: 'Carotte', phase: 'Lune Croissante', desc: 'Légume racine à récolter', tache: 'Récolter les plus grosses en tirant doucement, éclaircir les rangs trop serrés.' },
+  { nom: 'Courgette', phase: 'Lune Croissante', desc: 'Légume productif', tache: 'Récolter les fruits jeunes (10-15 cm) pour relancer la production, arroser au pied.' },
+  { nom: 'Aubergine', phase: 'Lune Croissante', desc: 'Légume tropical classique', tache: 'Récolter les fruits brillants avant qu\'ils ne deviennent ternes, tailler les tiges ayant fructifié.' },
+  { nom: 'Poivron', phase: 'Lune Croissante', desc: 'Légume coloré', tache: 'Récolter au stade vert ou coloré selon le goût voulu, pincer les premières fleurs pour fortifier la plante.' },
+  { nom: 'Haricot vert', phase: 'Lune Croissante', desc: 'Légume grimpant', tache: 'Récolter tous les 2-3 jours pour éviter les fils, attacher les lianes à leur tuteur.' },
+  { nom: 'Patate douce', phase: 'Lune Décroissante', desc: 'Tubercules à récolter', tache: 'Biner et butter les rangs, désherber, récolter les tubercules quand le feuillage jaunit (les jeunes feuilles se cuisinent aussi !).' },
+  { nom: 'Igname', phase: 'Lune Décroissante', desc: 'Tubercules traditionnels', tache: 'Désherber sans blesser les tubercules, tuteurer les lianes, récolter quand le feuillage sèche.' },
+  { nom: 'Dasheen (Taro)', phase: 'Lune Décroissante', desc: 'Plante racine locale', tache: 'Désherber et butter en gardant le sol humide, récolter les cormes après 6-9 mois (les feuilles = brèdes chou chinois !).' },
+  { nom: 'Chou', phase: 'Lune Croissante', desc: 'Légume feuille', tache: 'Récolter les pommes compactes, surveiller les chenilles sous les feuilles et traiter au savon noir ou Bt.' },
+  { nom: 'Épinard', phase: 'Lune Croissante', desc: 'Légume feuille vert', tache: 'Récolter feuille à feuille du bord de la plante pour prolonger la production, arroser régulièrement.' },
+  { nom: 'Concombre', phase: 'Lune Croissante', desc: 'Légume rafraîchissant', tache: 'Récolter avant que les fruits ne jaunissent, palisser les tiges sur un treillis.' },
+  { nom: 'Pois carré', phase: 'Lune Croissante', desc: 'Légume local réunionnais', tache: 'Récolter les cosses jeunes et tendres, semer pour une nouvelle vague de production.' },
+  { nom: 'Chouchou', phase: 'Lune Croissante', desc: 'Chayotte - courge grimpante', tache: 'Récolter les christophines jeunes, tailler la liane pour la contrôler (elle pousse très vite !).' },
+  { nom: 'Maïs', phase: 'Lune Croissante', desc: 'Céréale à cultiver', tache: 'Récolter les épis au stade laiteux (ongle rentre dans le grain), semer en poquets de 3 graines.' },
+  { nom: 'Pomme de terre', phase: 'Lune Décroissante', desc: 'Récolte des tubercules', tache: 'Butter les rangs, désherber, surveiller le mildiou (taches brunes par temps humide), récolter quand le feuillage meurt.' },
+  { nom: 'Oignon', phase: 'Lune Décroissante', desc: 'Bulbes à récolter', tache: 'Désherber soigneusement (racines fragiles), réduire l\'arrosage en fin de cycle, récolter quand les feuilles jaunissent puis faire sécher.' },
+  { nom: 'Ail', phase: 'Lune Décroissante', desc: 'Bulbes parfumés', tache: 'Désherber le rang, arrêter d\'arroser, récolter quand les feuilles jaunissent et se couchent, laisser sécher les têtes à l\'ombre.' }
 ];
 
 let tasks = JSON.parse(localStorage.getItem('jardin-tasks') || '[]');
@@ -217,16 +276,23 @@ function drawUI() {
 
   document.getElementById('moon').textContent = lune.emoji;
   document.getElementById('phase').textContent = lune.nom;
-  document.getElementById('advice').innerHTML = '<b>À faire :</b> ' + lune.conseil;
+
+  let adviceHtml = '<b>À faire aujourd\'hui :</b> ' + lune.conseil;
+  adviceHtml += '<p class="advice-why">' + lune.explication + '</p>';
+  adviceHtml += '<b>Ce que ça veut dire concrètement :</b><ul>';
+  lune.actions.forEach(a => { adviceHtml += '<li>' + a + '</li>'; });
+  adviceHtml += '</ul>';
+  adviceHtml += '<div class="advice-avoid"><b>À éviter :</b> ' + lune.eviter + '</div>';
+  document.getElementById('advice').innerHTML = adviceHtml;
 
   let html = '';
   plantes_reunion.forEach(p => {
     if (p.phase === lune.nom) {
       let emoji = '🌱';
       if (p.nom === 'Vanille' || p.nom === 'Fleur de Passage' || p.nom === 'Hibiscus' || p.nom === 'Frangipanier' || p.nom === 'Bougainvillée' || p.nom === 'Orchidée' || p.nom === 'Canna' || p.nom === 'Oiseau de paradis' || p.nom === 'Alstroemeria' || p.nom === 'Rose de porcelaine' || p.nom === 'Ixora' || p.nom === 'Allamanda' || p.nom === 'Lantana' || p.nom === 'Jasmin' || p.nom === 'Gardenia' || p.nom === 'Anthurium' || p.nom === 'Géranium' || p.nom === 'Quatre épices') emoji = '🌸';
-      if (p.nom === 'Letchis' || p.nom === 'Mangue' || p.nom === 'Ananas' || p.nom === 'Corossol' || p.nom === 'Papaye' || p.nom === 'Avocat' || p.nom === 'Bananier' || p.nom === 'Goyavier' || p.nom === 'Tamarin' || p.nom === 'Framboesian' || p.nom === 'Pomme cythère' || p.nom === 'Citron' || p.nom === 'Orange' || p.nom === 'Pomme rose' || p.nom === 'Coing du Japon' || p.nom === 'Noix de coco' || p.nom === 'Mandarinier') emoji = '🍎';
+      if (p.nom === 'Letchis' || p.nom === 'Mangue' || p.nom === 'Ananas' || p.nom === 'Corossol' || p.nom === 'Papaye' || p.nom === 'Avocat' || p.nom === 'Bananier' || p.nom === 'Goyavier' || p.nom === 'Tamarin' || p.nom === 'Framboisian' || p.nom === 'Pomme cythère' || p.nom === 'Citron' || p.nom === 'Orange' || p.nom === 'Pomme rose' || p.nom === 'Coing du Japon' || p.nom === 'Noix de coco' || p.nom === 'Mandarinier') emoji = '🍎';
       if (p.nom === 'Tomate Cerise' || p.nom === 'Piment' || p.nom === 'Salade' || p.nom === 'Radis' || p.nom === 'Herbes aromatiques' || p.nom === 'Carotte' || p.nom === 'Courgette' || p.nom === 'Aubergine' || p.nom === 'Poivron' || p.nom === 'Haricot vert' || p.nom === 'Patate douce' || p.nom === 'Igname' || p.nom === 'Dasheen (Taro)' || p.nom === 'Chou' || p.nom === 'Épinard' || p.nom === 'Concombre' || p.nom === 'Pois carré' || p.nom === 'Chouchou' || p.nom === 'Maïs' || p.nom === 'Pomme de terre' || p.nom === 'Oignon' || p.nom === 'Ail') emoji = '🥕';
-      html += '<div class="plant"><div class="plant-name">' + emoji + ' ' + p.nom + '</div><div class="plant-phase">' + p.desc + '</div></div>';
+      html += '<div class="plant"><div class="plant-name">' + emoji + ' ' + p.nom + '</div><div class="plant-phase">' + p.desc + '</div><div class="plant-task"><b>🎯 Tâche du jour :</b> ' + p.tache + '</div></div>';
     }
   });
   if (!html) html = '<p>Consultez les autres phases</p>';
