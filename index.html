@@ -33,12 +33,20 @@ h2 { color: #2d5a2d; margin-bottom: 15px; }
 label { display: block; padding: 8px 0; }
 input[type=checkbox] { margin-right: 8px; }
 button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 8px; background: #2d5a2d; color: white; font-weight: bold; cursor: pointer; }
+
+/* Styles météo et prévisions horaires */
 #weather { text-align: center; }
 .weather-icon { font-size: 3rem; margin: 10px 0; }
 .weather-temp { font-size: 2rem; font-weight: bold; }
 .weather-desc { margin: 10px 0; }
 .weather-details { color: #666; font-size: 0.9rem; margin-top: 10px; }
-.weather-source { font-size: 0.75rem; color: #888; margin-top: 10px; }
+.weather-forecast { display: flex; justify-content: space-around; margin-top: 18px; padding-top: 15px; border-top: 1px dashed #ddd; }
+.forecast-item { text-align: center; flex: 1; }
+.forecast-time { font-size: 0.85rem; font-weight: bold; color: #2d5a2d; }
+.forecast-icon { font-size: 1.6rem; margin: 4px 0; }
+.forecast-temp { font-size: 0.95rem; font-weight: bold; }
+.forecast-rain { font-size: 0.75rem; color: #0288d1; margin-top: 2px; }
+.weather-source { font-size: 0.75rem; color: #888; margin-top: 15px; }
 </style>
 </head>
 <body>
@@ -61,16 +69,20 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 </div>
 
 <div class="card">
-<h2>🌤️ Météo à Piton Sainte Rose</h2>
+<h2>🌤️ Météo · Gros Piton Sainte-Rose</h2>
 <div id="weather">
   <div class="weather-icon" id="weather-icon">⏳</div>
-  <div class="weather-temp" id="weather-temp"></div>
+  <div class="weather-temp" id="weather-temp">-- °C</div>
   <div class="weather-desc" id="weather-desc">Chargement des conditions…</div>
   <div class="weather-details">
-    <span id="weather-humidity"></span> |
-    <span id="weather-wind"></span>
+    <span id="weather-humidity">Humidité : -- %</span> |
+    <span id="weather-wind">Vent : -- km/h</span>
   </div>
-  <div class="weather-source">Données : Open-Meteo · Prévisions pour Piton Sainte Rose</div>
+  
+  <!-- Prévisions à 3 heures -->
+  <div class="weather-forecast" id="weather-forecast"></div>
+
+  <div class="weather-source">Données : Open-Meteo · Station Gros Piton Sainte-Rose (974)</div>
 </div>
 </div>
 
@@ -132,7 +144,7 @@ const lunaires = [
     emoji: '🌘',
     conseil: 'Désherbage, élagage, repos',
     explication: 'La lune diminue chaque soir : la sève redescend vers les racines. Tout ce qui vit sous terre en profite : c\'est LE moment des racines, tubercules et bulbes, et le meilleur moment pour couper sans affaiblir.',
-        actions: [
+    actions: [
       'Récolter les tubercules et bulbes : patate douce, igname, dasheen, pomme de terre, oignon, ail',
       'Désherber : les mauvaises herbes repoussent moins vite',
       'Tondre le gazon : en lune décroissante il repousse moins vite, on gagne du temps avant la prochaine tonte',
@@ -184,7 +196,7 @@ const plantes_reunion = [
   { nom: 'Coing du Japon', phase: 'Lune Croissante', desc: 'Fruit décoratif', tache: 'Récolter les coings jaunes et parfumés, bouturer ou marcotter pour multiplier.' },
   { nom: 'Noix de coco', phase: 'Lune Décroissante', desc: 'Palmier et récolte', tache: 'Retirer les palmes mortes et les noix mûres au sol, désherber le pied. Attention : ne jamais monter au cocotier sans matériel.' },
   { nom: 'Mandarinier', phase: 'Lune Croissante', desc: 'Agrume local juteux', tache: 'Récolter les mandarines qui se détachent facilement à la main, greffer en bourgeonnement.' },
-    { nom: 'Bibassier (bibasse)', phase: 'Lune Décroissante', desc: 'Nèfle du Japon - fruit des Hauts', tache: 'Élaguer les branches basses, désherber le pied, récolter les fruits jaunes et souples (attention : les pépins sont toxiques !), parfaits en confiture ou rhum arrangé.' },
+  { nom: 'Bibassier (bibasse)', phase: 'Lune Décroissante', desc: 'Nèfle du Japon - fruit des Hauts', tache: 'Élaguer les branches basses, désherber le pied, récolter les fruits jaunes et souples (attention : les pépins sont toxiques !), parfaits en confiture ou rhum arrangé.' },
   { nom: 'Jamblon (jambose)', phase: 'Lune Croissante', desc: 'Petit fruit rouge puis noir, très sucré', tache: 'Récolter les fruits bien noirs (mangés trop tôt ils sont âpres), éclaircir le centre de l\'arbuste pour laisser l\'air et la lumière circuler.' },
 
   // Légumes
@@ -209,7 +221,7 @@ const plantes_reunion = [
   { nom: 'Maïs', phase: 'Lune Croissante', desc: 'Céréale à cultiver', tache: 'Récolter les épis au stade laiteux (ongle rentre dans le grain), semer en poquets de 3 graines.' },
   { nom: 'Pomme de terre', phase: 'Lune Décroissante', desc: 'Récolte des tubercules', tache: 'Butter les rangs, désherber, surveiller le mildiou (taches brunes par temps humide), récolter quand le feuillage meurt.' },
   { nom: 'Oignon', phase: 'Lune Décroissante', desc: 'Bulbes à récolter', tache: 'Désherber soigneusement (racines fragiles), réduire l\'arrosage en fin de cycle, récolter quand les feuilles jaunissent puis faire sécher.' },
-    { nom: 'Ail', phase: 'Lune Décroissante', desc: 'Bulbes parfumés', tache: 'Désherber le rang, arrêter d\'arroser, récolter quand les feuilles jaunissent et se couchent, laisser sécher les têtes à l\'ombre.' },
+  { nom: 'Ail', phase: 'Lune Décroissante', desc: 'Bulbes parfumés', tache: 'Désherber le rang, arrêter d\'arroser, récolter quand les feuilles jaunissent et se couchent, laisser sécher les têtes à l\'ombre.' },
 
   // Rhizomes et épices
   { nom: 'Curcuma', phase: 'Lune Décroissante', desc: 'Rhizome orangé - épice locale', tache: 'Désherber et butter en gardant le sol humide à mi-ombre, récolter les rhizomes quand le feuillage jaunit et se couche, en garder quelques-uns pour replanter.' },
@@ -251,7 +263,7 @@ const plantes_reunion = [
 let tasks = JSON.parse(localStorage.getItem('jardin-tasks') || '[]');
 let currentMoonPhase = -1;
 
-// Calcul de la phase lunaire (corrigé)
+// Calcul de la phase lunaire
 function getPhase() {
   const now = new Date();
   const ref = new Date(2000, 0, 6);
@@ -260,29 +272,70 @@ function getPhase() {
   return Math.floor(phase * 4);
 }
 
-// Météo actuelle de Piton Sainte Rose via Open-Meteo (sans clé API)
+// Météo actuelle + prévisions 3h de Gros Piton Sainte-Rose via Open-Meteo
 async function fetchWeather() {
-  const weatherBox = document.getElementById('weather');
   try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-21.1167&longitude=55.7667&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,is_day&timezone=Indian%2FReunion';
-    const response = await fetch(url, { cache: 'no-store' });
-    if (!response.ok) throw new Error('Réponse météo HTTP ' + response.status);
-    const data = await response.json();
-    if (!data.current) throw new Error('Données météo absentes');
+    // Utilisation de HTTPS explicite pour éviter les blocages de sécurité sur mobile / GitHub Pages
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=-21.1795&longitude=55.8288&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code,is_day&hourly=temperature_2m,precipitation,weather_code,is_day&forecast_hours=6&timezone=Indian%2FReunion';
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
+    const response = await fetch(url, { cache: 'no-store', signal: controller.signal });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) throw new Error('Erreur HTTP météo ' + response.status);
+    const data = await response.json();
+    if (!data.current) throw new Error('Données météo actuelles absentes');
+
+    // Météo actuelle
     const current = data.current;
     document.getElementById('weather-icon').textContent = getWeatherIcon(current.weather_code, current.is_day);
     document.getElementById('weather-temp').textContent = Math.round(current.temperature_2m) + ' °C';
     document.getElementById('weather-desc').textContent = weatherDescription(current.weather_code);
     document.getElementById('weather-humidity').textContent = 'Humidité : ' + current.relative_humidity_2m + ' %';
     document.getElementById('weather-wind').textContent = 'Vent : ' + Math.round(current.wind_speed_10m) + ' km/h';
+
+    // Prévisions pour les 3 prochaines heures
+    if (data.hourly && data.hourly.time) {
+      const now = new Date();
+      let nextHoursHtml = '';
+      let count = 0;
+
+      for (let i = 0; i < data.hourly.time.length; i++) {
+        const itemTime = new Date(data.hourly.time[i]);
+        if (itemTime > now && count < 3) {
+          const hourLabel = itemTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+          const temp = Math.round(data.hourly.temperature_2m[i]);
+          const rain = data.hourly.precipitation[i];
+          const code = data.hourly.weather_code[i];
+          const isDay = data.hourly.is_day[i];
+          const icon = getWeatherIcon(code, isDay);
+
+          nextHoursHtml += `
+            <div class="forecast-item">
+              <div class="forecast-time">+${count + 1}h (${hourLabel})</div>
+              <div class="forecast-icon">${icon}</div>
+              <div class="forecast-temp">${temp} °C</div>
+              <div class="forecast-rain">${rain > 0 ? '💧 ' + rain + ' mm' : 'Pas de pluie'}</div>
+            </div>
+          `;
+          count++;
+        }
+      }
+      document.getElementById('weather-forecast').innerHTML = nextHoursHtml;
+    }
   } catch (error) {
-    console.error('Erreur météo :', error);
-    weatherBox.innerHTML = '<p>⚠️ Météo momentanément indisponible.</p><p class="weather-source">Vérifie la connexion Internet puis actualise la page.</p>';
+    console.error('Erreur météo Gros Piton Sainte-Rose :', error);
+    document.getElementById('weather-desc').textContent = 'Météo momentanément indisponible';
+    document.getElementById('weather-temp').textContent = '-- °C';
+    document.getElementById('weather-humidity').textContent = 'Humidité : -- %';
+    document.getElementById('weather-wind').textContent = 'Vent : -- km/h';
+    document.getElementById('weather-forecast').innerHTML = '<div style="font-size:0.8rem; color:#c62828; padding:5px;">Vérifiez votre connexion internet</div>';
   }
 }
 
-// Codes météo WMO utilisés par Open-Meteo
+// Codes météo WMO
 function getWeatherIcon(code, isDay) {
   if (code === 0) return isDay ? '☀️' : '🌙';
   if ([1, 2].includes(code)) return isDay ? '⛅' : '☁️';
@@ -309,7 +362,7 @@ function weatherDescription(code) {
   return descriptions[code] || 'Conditions météo variables';
 }
 
-// Dessine l'interface
+// Rendu de l'interface utilisateur
 function drawUI() {
   const phase = getPhase();
   const lune = lunaires[phase];
@@ -371,12 +424,14 @@ function clearTasks() {
   drawUI();
 }
 
-// Initialisation
+// Initialisation au chargement de la page
 drawUI();
 fetchWeather();
-setInterval(fetchWeather, 10 * 60 * 1000); // Rafraîchit la météo toutes les 10 min
 
-// Mise à jour automatique de la phase lunaire toutes les heures
+// Rafraîchissement automatique de la météo toutes les 10 minutes
+setInterval(fetchWeather, 10 * 60 * 1000);
+
+// Vérification de changement de phase lunaire toutes les heures
 setInterval(() => {
   const newPhase = getPhase();
   if (newPhase !== currentMoonPhase) {
@@ -385,7 +440,7 @@ setInterval(() => {
   }
 }, 60 * 60 * 1000);
 
-// Service Worker
+// Enregistrement du Service Worker pour compatibilité PWA mobile
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
