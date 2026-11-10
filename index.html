@@ -17,6 +17,10 @@ main { max-width: 600px; margin: 20px auto; padding: 20px; }
 h2 { color: #2d5a2d; margin-bottom: 15px; }
 .moon { text-align: center; font-size: 3rem; margin: 20px 0; }
 .phase-name { text-align: center; font-size: 1.2rem; font-weight: bold; color: #2d5a2d; margin: 10px 0; }
+.phase-detail { text-align: center; color: #666; font-size: 0.9rem; margin: 6px 0 14px; }
+.moon-date { text-align: center; font-size: 0.9rem; margin: 8px 0; color: #555; }
+.moon-navigation { display: flex; gap: 10px; justify-content: center; }
+.moon-navigation button { flex: 1; max-width: 180px; }
 .advice { background: #f0f8f0; padding: 15px; border-left: 4px solid #2d5a2d; border-radius: 5px; margin: 10px 0; }
 .advice-why { font-style: italic; color: #555; margin-bottom: 10px; }
 .advice ul { margin: 8px 0 8px 20px; }
@@ -60,6 +64,12 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 <h2>🌙 Calendrier Lunaire</h2>
 <div class="moon" id="moon">🌙</div>
 <div class="phase-name" id="phase">Nouvelle Lune</div>
+<div class="phase-detail" id="phase-detail"></div>
+<div class="moon-date" id="moon-date"></div>
+<div class="moon-navigation">
+  <button type="button" onclick="changeMoonDay(-1)">← Jour précédent</button>
+  <button type="button" onclick="changeMoonDay(1)">Jour suivant →</button>
+</div>
 <div class="advice" id="advice"></div>
 </div>
 
@@ -94,7 +104,39 @@ button { width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius
 </div>
 </main>
 
-<script>
+<script type="module">
+import { getMoonIllumination } from './suncalc.js';
+
+const phasesAstronomiques = [
+  { nom: 'Nouvelle Lune', emoji: '🌑' },
+  { nom: 'Premier croissant', emoji: '🌒' },
+  { nom: 'Premier quartier', emoji: '🌓' },
+  { nom: 'Lune gibbeuse croissante', emoji: '🌔' },
+  { nom: 'Pleine Lune', emoji: '🌕' },
+  { nom: 'Lune gibbeuse décroissante', emoji: '🌖' },
+  { nom: 'Dernier quartier', emoji: '🌗' },
+  { nom: 'Dernier croissant', emoji: '🌘' }
+];
+
+let selectedMoonDate = new Date();
+
+function getMoonData() {
+  const illumination = getMoonIllumination(selectedMoonDate);
+  const phaseIndex = Math.round(illumination.phase * 8) % 8;
+
+  let categoryIndex;
+  if (phaseIndex === 0) categoryIndex = 0;
+  else if (phaseIndex <= 3) categoryIndex = 1;
+  else if (phaseIndex === 4) categoryIndex = 2;
+  else categoryIndex = 3;
+
+  return {
+    ...phasesAstronomiques[phaseIndex],
+    categoryIndex,
+    fraction: illumination.fraction,
+    waxing: illumination.waxing
+  };
+}
 // Données des phases lunaires : explication détaillée de chaque phase
 const lunaires = [
   {
@@ -261,17 +303,6 @@ const plantes_reunion = [
 ];
 
 let tasks = JSON.parse(localStorage.getItem('jardin-tasks') || '[]');
-let currentMoonPhase = -1;
-
-// Calcul de la phase lunaire
-function getPhase() {
-  const now = new Date();
-  const ref = new Date(2000, 0, 6);
-  const days = (now - ref) / 86400000;
-  const phase = (days % 29.530588) / 29.530588;
-  return Math.floor(phase * 4);
-}
-
 // Météo actuelle + prévisions 3h de Gros Piton Sainte-Rose via Open-Meteo
 async function fetchWeather() {
   try {
@@ -326,12 +357,22 @@ async function fetchWeather() {
       document.getElementById('weather-forecast').innerHTML = nextHoursHtml;
     }
   } catch (error) {
-    console.error('Erreur météo Gros Piton Sainte-Rose :', error);
-    document.getElementById('weather-desc').textContent = 'Météo momentanément indisponible';
+    const offline = !navigator.onLine;
+
+    if (!offline) {
+      console.error('Erreur météo Gros Piton Sainte-Rose :', error);
+    }
+
+    document.getElementById('weather-icon').textContent = '🌤️';
+    document.getElementById('weather-desc').textContent = offline
+      ? 'Météo indisponible hors connexion'
+      : 'Météo momentanément indisponible';
     document.getElementById('weather-temp').textContent = '-- °C';
     document.getElementById('weather-humidity').textContent = 'Humidité : -- %';
     document.getElementById('weather-wind').textContent = 'Vent : -- km/h';
-    document.getElementById('weather-forecast').innerHTML = '<div style="font-size:0.8rem; color:#c62828; padding:5px;">Vérifiez votre connexion internet</div>';
+    document.getElementById('weather-forecast').innerHTML = offline
+      ? '<div style="font-size:0.8rem; color:#666; padding:5px;">Les prévisions seront actualisées dès le retour d’Internet.</div>'
+      : '<div style="font-size:0.8rem; color:#c62828; padding:5px;">Vérifiez votre connexion internet ou réessayez plus tard.</div>';
   }
 }
 
@@ -364,14 +405,20 @@ function weatherDescription(code) {
 
 // Rendu de l'interface utilisateur
 function drawUI() {
-  const phase = getPhase();
-  const lune = lunaires[phase];
-  currentMoonPhase = phase;
+  const moon = getMoonData();
+  const lune = lunaires[moon.categoryIndex];
 
-  document.getElementById('moon').textContent = lune.emoji;
-  document.getElementById('phase').textContent = lune.nom;
+  document.getElementById('moon').textContent = moon.emoji;
+  document.getElementById('phase').textContent = moon.nom;
+  document.getElementById('moon-date').textContent =
+    selectedMoonDate.toLocaleDateString('fr-FR', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+  document.getElementById('phase-detail').textContent =
+    Math.round(moon.fraction * 100) + ' % éclairée · Phase ' +
+    (moon.waxing ? 'croissante' : 'décroissante');
 
-  let adviceHtml = '<b>À faire aujourd\'hui :</b> ' + lune.conseil;
+  let adviceHtml = '<b>À faire à cette date :</b> ' + lune.conseil;
   adviceHtml += '<p class="advice-why">' + lune.explication + '</p>';
   adviceHtml += '<b>Ce que ça veut dire concrètement :</b><ul>';
   lune.actions.forEach(a => { adviceHtml += '<li>' + a + '</li>'; });
@@ -424,6 +471,19 @@ function clearTasks() {
   drawUI();
 }
 
+// Navigation manuelle dans le calendrier lunaire
+function changeMoonDay(offset) {
+  selectedMoonDate.setDate(selectedMoonDate.getDate() + offset);
+  drawUI();
+}
+
+window.changeMoonDay = changeMoonDay;
+
+// Conservation des gestionnaires HTML malgré le passage en module ES
+window.addTask = addTask;
+window.toggleTask = toggleTask;
+window.clearTasks = clearTasks;
+
 // Initialisation au chargement de la page
 drawUI();
 fetchWeather();
@@ -431,14 +491,8 @@ fetchWeather();
 // Rafraîchissement automatique de la météo toutes les 10 minutes
 setInterval(fetchWeather, 10 * 60 * 1000);
 
-// Vérification de changement de phase lunaire toutes les heures
-setInterval(() => {
-  const newPhase = getPhase();
-  if (newPhase !== currentMoonPhase) {
-    currentMoonPhase = newPhase;
-    drawUI();
-  }
-}, 60 * 60 * 1000);
+// Actualisation de l'affichage lunaire toutes les heures
+setInterval(drawUI, 60 * 60 * 1000);
 
 // Enregistrement du Service Worker pour compatibilité PWA mobile
 if ('serviceWorker' in navigator) {
