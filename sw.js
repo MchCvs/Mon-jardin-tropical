@@ -1,5 +1,5 @@
 // Service Worker pour Mon Jardin Tropical
-const CACHE_NAME = 'jardin-v4';
+const CACHE_NAME = 'jardin-v5';
 const APP_ROOT = self.registration.scope;
 
 const APP_FILES = [
